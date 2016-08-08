@@ -4,7 +4,9 @@ Created on Mon Jun 06 14:46:13 2016
 
 @author: westerr
 
-Implimentation of Gap Statistic using sklean, pandas, and numpy with plotting 
+Implimentation of Gap Statistic using sklearn, pandas, and numpy with plotting 
+
+Using: Initialize kmean_metrics class then call determine_best_k function
 
 Sources: 
     https://datasciencelab.wordpress.com/2013/12/27/finding-the-k-in-k-means-clustering/
@@ -25,7 +27,6 @@ class kmeans_metrics():
     def calc_log_Wk(self, kmeans, X):
         """
         Calculates the sum of squared euclidean distance for each cluster
-        then normalized by cluster size and returns the log of the sum 
         """        
         
         # First calculate squared distance between data and clusters
@@ -92,7 +93,7 @@ class kmeans_metrics():
             # Fix clustering with reference data
             ref_kmeans.fit(ref_data)
             
-            # Calculate the log Wk 
+            # Calculate log Wk 
             ref_log_Wk[b] = self.calc_log_Wk(ref_kmeans, ref_data)
 
         # Return the mean and std of the reference log(Wk)            
@@ -128,20 +129,21 @@ class kmeans_metrics():
         
         k_max is max number of clusters to consider
 
-        B is the number of monte carlo simulations to run for each iteration of cluster numbers (1 to k_max)
+        B is the number of monte carlo simulations to run for each iteration of cluster numbers (1 to k_max), default is 10
         
-        output_plots if True will create a plot where Gap(k) – Gap(k+1) + s(k+1) > 0 signifies good separation
+        output_plots if True will create a plot where Gap(k) – Gap(k+1) + s(k+1) > 0 signifies good cluster separation
 
         test_silhouette if True includes silhouette score in k_summary_stats, else is populated with null values
         
-        **kargs are args for KMeans class
+        **kargs are args for sklearn.cluster.KMeans
         
         """        
         print "Determining best cluster size..."
-        # Iterate for cluster numbers ranging from one to k_max
+        # Initialize k_summary_stats df 
         result_idx = np.arange(1, k_max+1)
         result_cols = ['gap_statistic', 'log_Wk', 'reg_mean_log_Wk', 'sim_error', 'inertia', 'silhouette_score']
         self.k_summary_stats = pd.DataFrame(columns=result_cols, index=result_idx)
+        # Iterate for cluster numbers ranging from one to k_max
         for k in result_idx:
             # Initialize and fit clusters
             km_actual = KMeans(n_clusters=k, **kargs)
